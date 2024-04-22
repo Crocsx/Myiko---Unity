@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "649843611464",
+    "project_id": "myiko-2c6ad",
+    "storage_bucket": "myiko-2c6ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649843611464:android:a5a2b317adde7d1689457d",
+        "android_client_info": {
+          "package_name": "com.ythlium.myiko"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBd9-PrcbYhWUhh0zr-1-Rb_JcJyKzsZl8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

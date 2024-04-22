@@ -61,5 +61,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-google-services-desktop.json
-google-services-desktop.json.meta
+google-services.json
+google-services.json.meta
+google-services-*.json
+google-services-*.json.meta

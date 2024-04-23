@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,23 +8,16 @@ public class AuthenticationController: MonoBehaviour
     public GameObject registrationPanel;
     public GameObject loginPanel;
     public GameObject loggedPanel;
-    private UnityMainThreadDispatcher mainThreadDispatcher;
-
-    FirebaseAuthManager firebaseAuthManager;
 
     void Start()
     {
-        firebaseAuthManager = FirebaseAuthManager.Instance;
-        mainThreadDispatcher = UnityMainThreadDispatcher.Instance;
-
         FirebaseAuthManager.OnAuthStateChanged += HandleAuthStateChanged;
-        if(firebaseAuthManager.User != null)
+        if(FirebaseAuthManager.Instance.User != null)
         {
             ShowLoggedPanel();
         }
 
     }
-
 
     void OnDestroy()
     {
@@ -34,13 +28,12 @@ public class AuthenticationController: MonoBehaviour
     {
         if (signedIn)
         {
-            mainThreadDispatcher.Enqueue(() =>
+            UnityMainThreadDispatcher.Instance.Enqueue(() =>
             {
                 ShowLoggedPanel();
             });
         }
     }
-
 
     public void ShowRegistrationPanel()
     {
@@ -65,7 +58,7 @@ public class AuthenticationController: MonoBehaviour
 
     public void Login(string email, string password)
     {
-        firebaseAuthManager.Auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
+        FirebaseAuthManager.Instance.Auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
             if (task.IsCanceled)
             {
                 Debug.LogError("SignInWithEmailAndPasswordAsync was canceled.");
@@ -81,7 +74,7 @@ public class AuthenticationController: MonoBehaviour
             Debug.LogFormat("Firebase user signed successfully: {0} ({1})",
                 result.User.DisplayName, result.User.UserId);
 
-            mainThreadDispatcher.Enqueue(() =>
+            UnityMainThreadDispatcher.Instance.Enqueue(() =>
             {
                 ShowLoggedPanel();
             });
@@ -90,33 +83,38 @@ public class AuthenticationController: MonoBehaviour
 
     public void Register(string email, string password)
     {
-        firebaseAuthManager.Auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
-            if (task.IsCanceled)
-            {
-                Debug.LogError("CreateUserWithEmailAndPasswordAsync was canceled.");
-                return;
-            }
-            if (task.IsFaulted)
-            {
-                Debug.LogError("CreateUserWithEmailAndPasswordAsync encountered an error: " + task.Exception);
-                return;
-            }
+        StartCoroutine(StartRegister(email, password));
+    }
 
-            // Firebase user has been created.
-            Firebase.Auth.AuthResult result = task.Result;
-            Debug.LogFormat("Firebase user created successfully: {0} ({1})",
-                result.User.DisplayName, result.User.UserId);
+    IEnumerator StartRegister(string email, string password)
+    {
+        string url = "http://localhost:3333/auth/signup";
+        string jsonBody = JsonUtility.ToJson(new AuthRegistrationData(email, password, email));
+        Dictionary<string, string> headers = new Dictionary<string, string>
+        {
+            { "Authorization", "Bearer " + FirebaseAuthManager.Instance.Token }
+        };
 
-            mainThreadDispatcher.Enqueue(() =>
-            {
-                ShowLoginPanel();
-            });
-        });
+        yield return StartCoroutine(ApiManager.Instance.PostJsonRequest(url, jsonBody, HandlePostLogin, headers));
+    }
+
+    void HandlePostLogin(bool success, string response)
+    {
+        if (success)
+        {
+            Debug.Log("Register request successful. Response: " + response);
+            ShowLoginPanel();
+        }
+        else
+        {
+            Debug.LogError("Register request failed. Error: " + response);
+
+        }
     }
 
     public void Logout()
     {
-        firebaseAuthManager.Auth.SignOut();
+        FirebaseAuthManager.Instance.Auth.SignOut();
         ShowLoginPanel();
     }
 }

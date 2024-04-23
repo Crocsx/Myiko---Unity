@@ -18,9 +18,14 @@ public class FirebaseAuthManager: Singleton<FirebaseAuthManager>
         get { return user; }
     }
 
+    public string Token
+    {
+        get { return token; }
+    }
 
     FirebaseAuth auth;
     FirebaseUser user;
+    string token;
 
     public delegate void AuthStateChangeHandler(bool signedIn, string userId);
     public static event AuthStateChangeHandler OnAuthStateChanged;
@@ -71,9 +76,29 @@ public class FirebaseAuthManager: Singleton<FirebaseAuthManager>
             if (signedIn)
             {
                 Debug.Log("Signed in " + user.UserId);
+                SetToken();
             }
 
             OnAuthStateChanged?.Invoke(signedIn, user != null ? user.UserId : null);
         }
+    }
+
+    void SetToken()
+    {
+        user.TokenAsync(true).ContinueWith(task => {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("TokenAsync was canceled.");
+                return;
+            }
+
+            if (task.IsFaulted)
+            {
+                Debug.LogError("TokenAsync encountered an error: " + task.Exception);
+                return;
+            }
+
+            token = task.Result;
+        });
     }
 }

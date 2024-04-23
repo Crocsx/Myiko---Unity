@@ -30,6 +30,7 @@ public class AuthenticationController: MonoBehaviour
         {
             UnityMainThreadDispatcher.Instance.Enqueue(() =>
             {
+                Debug.Log("Hey");
                 ShowLoggedPanel();
             });
         }

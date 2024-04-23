@@ -29,6 +29,4 @@ public class UnityMainThreadDispatcher : Singleton<UnityMainThreadDispatcher>
             actions.Enqueue(action);
         }
     }
-
-
 }

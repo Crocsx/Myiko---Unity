@@ -7,5 +7,5 @@ EditorBuildSettings:
   m_Scenes: []
   m_configObjects:
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000,
-      guid: 6856354c9ee366e4ebff1797e2b963fa, type: 2}
+      guid: df206b0d78a10c44cae475a9a060a729, type: 2}
   m_UseUCBPForAssetBundles: 0

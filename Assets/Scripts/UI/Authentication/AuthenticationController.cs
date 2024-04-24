@@ -9,8 +9,12 @@ public class AuthenticationController: MonoBehaviour
     public GameObject loginPanel;
     public GameObject loggedPanel;
 
+    UnityMainThreadDispatcher mainThread = UnityMainThreadDispatcher.Instance;
+
     void Start()
     {
+        mainThread = UnityMainThreadDispatcher.Instance;
+
         FirebaseAuthManager.OnAuthStateChanged += HandleAuthStateChanged;
         if(FirebaseAuthManager.Instance.User != null)
         {
@@ -28,9 +32,8 @@ public class AuthenticationController: MonoBehaviour
     {
         if (signedIn)
         {
-            UnityMainThreadDispatcher.Instance.Enqueue(() =>
+            mainThread.Enqueue(() =>
             {
-                Debug.Log("Hey");
                 ShowLoggedPanel();
             });
         }
@@ -75,7 +78,7 @@ public class AuthenticationController: MonoBehaviour
             Debug.LogFormat("Firebase user signed successfully: {0} ({1})",
                 result.User.DisplayName, result.User.UserId);
 
-            UnityMainThreadDispatcher.Instance.Enqueue(() =>
+            mainThread.Enqueue(() =>
             {
                 ShowLoggedPanel();
             });
@@ -84,33 +87,16 @@ public class AuthenticationController: MonoBehaviour
 
     public void Register(string email, string password)
     {
-        StartCoroutine(StartRegister(email, password));
-    }
-
-    IEnumerator StartRegister(string email, string password)
-    {
-        string url = "http://localhost:3333/auth/signup";
-        string jsonBody = JsonUtility.ToJson(new AuthRegistrationData(email, password, email));
-        Dictionary<string, string> headers = new Dictionary<string, string>
-        {
-            { "Authorization", "Bearer " + FirebaseAuthManager.Instance.Token }
-        };
-
-        yield return StartCoroutine(ApiManager.Instance.PostJsonRequest(url, jsonBody, HandlePostLogin, headers));
-    }
-
-    void HandlePostLogin(bool success, string response)
-    {
-        if (success)
-        {
-            Debug.Log("Register request successful. Response: " + response);
-            ShowLoginPanel();
-        }
-        else
-        {
-            Debug.LogError("Register request failed. Error: " + response);
-
-        }
+        StartCoroutine(AuthApi.RegisterUser(new AuthRegistrationDto(email, password, email), (success, response) => {
+            if (success)
+            {
+                ShowLoginPanel();
+            }
+            else
+            {
+                Debug.LogError(response);
+            }
+        }));
     }
 
     public void Logout()

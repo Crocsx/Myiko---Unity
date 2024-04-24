@@ -97,7 +97,6 @@ public class FirebaseAuthManager: Singleton<FirebaseAuthManager>
                 Debug.LogError("TokenAsync encountered an error: " + task.Exception);
                 return;
             }
-
             token = task.Result;
         });
     }

@@ -7,11 +7,12 @@ public class UnityMainThreadDispatcher : Singleton<UnityMainThreadDispatcher>
 
     private static readonly Queue<Action> actions = new Queue<Action>();
     private static readonly object lockObject = new object();
-
+    private const int maxActionsPerFrame = 10;
 
     private void Update()
     {
-        while (actions.Count > 0)
+        int actionCount = 0;
+        while (actions.Count > 0 && actionCount < maxActionsPerFrame)
         {
             Action action;
             lock (lockObject)
@@ -19,6 +20,7 @@ public class UnityMainThreadDispatcher : Singleton<UnityMainThreadDispatcher>
                 action = actions.Dequeue();
             }
             action();
+            actionCount++;
         }
     }
 

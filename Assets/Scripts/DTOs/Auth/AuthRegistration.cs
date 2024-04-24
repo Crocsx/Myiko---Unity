@@ -1,11 +1,11 @@
 [System.Serializable]
-public class AuthRegistrationData
+public class AuthRegistrationDto
 {
     public string email;
     public string password;
     public string displayName;
 
-    public AuthRegistrationData(string email, string password, string displayName)
+    public AuthRegistrationDto(string email, string password, string displayName)
     {
         this.email = email;
         this.password = password;

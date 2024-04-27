@@ -1,11 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-public class World : MonoBehaviour
+public class WorldService : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    WorldGeneration worldGenerator;
+
     void Start()
     {
+        worldGenerator = GetComponent<WorldGeneration>();
         StartCoroutine(GetWorld());
     }
 
@@ -15,13 +17,9 @@ public class World : MonoBehaviour
         yield return StartCoroutine(MapAPI.GetMap((success, response) => {
             if (success)
             {
-                Debug.Log(response);
                 ServerResponse<GetMapResponse> mapResponse = JsonUtility.FromJson<ServerResponse<GetMapResponse>>(response);
-     
-                foreach (MapTile tile in mapResponse.data.world)
-                {
-                    Debug.Log(tile._id);
-                }
+
+                worldGenerator.GenerateMap(mapResponse.data.world);
             }
             else
             {

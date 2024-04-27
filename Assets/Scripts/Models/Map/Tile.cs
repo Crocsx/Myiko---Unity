@@ -11,8 +11,8 @@ public class MapTile
 [System.Serializable]
 public class Point
 {
-    public float x;
-    public float y;
+    public string type;
+    public float[] coordinates;
 }
 
 public enum MapTileType
